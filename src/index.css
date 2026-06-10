@@ -29,6 +29,41 @@ body {
     "Helvetica Neue", Arial, sans-serif;
   font-synthesis: none;
 }
+.buy-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 64px;
+  margin: 22px 0 18px;
+  padding: 11px 21px;
+  border: 1px solid #0077ed;
+  border-radius: 999px;
+  background: #0077ed;
+  color: #fff;
+  font-size: 17px;
+  line-height: 1;
+  text-decoration: none;
+  transition:
+    background-color 180ms ease,
+    transform 180ms ease;
+}
+
+.buy-btn:hover {
+  background: #0071e3;
+}
+
+.buy-btn:active {
+  transform: scale(0.97);
+}
+
+.site-footer {
+  padding: 32px clamp(20px, 7vw, 112px);
+}
+
+.footer-inner {
+  width: min(100%, 1080px);
+  margin-inline: auto;
+}
 
 canvas {
   touch-action: none;
