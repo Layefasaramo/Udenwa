@@ -13,8 +13,8 @@ function App() {
     <main className="bg-black min-h-screen w-full relative overflow-x-hidden">
       <Navbar />
       <Hero />
-      <Model />
       <Highlights />
+      <Model />
       <Features />
       <HowItWorks />
       <Footer />
