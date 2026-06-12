@@ -52,7 +52,13 @@ const HowItWorks = () => {
     <section className="standard-section content-section bg-black">
       <div className="screen-max-width">
         <div id="chip" className="flex-center w-full my-20">
-          <img src={chipImg} alt="chip" width={180} height={180} />
+          <img
+            src={chipImg}
+            alt="chip"
+            width={180}
+            height={180}
+            loading="lazy"
+          />
         </div>
 
         <div className="flex flex-col items-center">
@@ -80,7 +86,7 @@ const HowItWorks = () => {
               <video
                 className="pointer-events-none"
                 playsInline
-                preload={loadVideo ? "metadata" : "none"}
+                preload="none"
                 muted
                 autoPlay
                 loop

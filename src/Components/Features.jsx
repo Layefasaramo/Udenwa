@@ -36,7 +36,7 @@ const Features = () => {
         start: "-10% bottom",
       },
       onComplete: () => {
-        videoRef.current.play();
+        videoRef.current?.play().catch(() => {});
       },
     });
 
@@ -73,6 +73,7 @@ const Features = () => {
             <div className="story-video" ref={videoContainerRef}>
               <video
                 playsInline
+                disablePictureInPicture
                 id="exploreVideo"
                 className="w-full h-full object-cover object-center"
                 preload={loadVideo ? "metadata" : "none"}

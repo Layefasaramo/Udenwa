@@ -1,24 +1,10 @@
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
-import { heroImg, heroVideo, smallHeroVideo } from "../Utils";
-import { useEffect, useState } from "react";
+import { heroVideo, smallHeroVideo } from "../Utils";
+import { useRef } from "react";
 
 const Hero = () => {
-  const [videoSrc, setVideoSrc] = useState(
-    window.innerWidth < 760 ? smallHeroVideo : heroVideo,
-  );
-
-  const handleVideoSet = () => {
-    if (window.innerWidth < 760) setVideoSrc(smallHeroVideo);
-    else setVideoSrc(heroVideo);
-  };
-
-  useEffect(() => {
-    window.addEventListener("resize", handleVideoSet);
-    return () => {
-      window.removeEventListener("resize", handleVideoSet);
-    };
-  }, []);
+  const videoRef = useRef(null);
 
   useGSAP(() => {
     gsap.to("#hero", { opacity: 1, delay: 1.5 });
@@ -33,16 +19,28 @@ const Hero = () => {
         </p>
         <div className="hero-video-wrap">
           <video
-            className="pointer-events-none"
+            ref={videoRef}
+            className="hero-video pointer-events-none"
             autoPlay
             muted
             loop
-            playsInline={true}
+            playsInline
+            disablePictureInPicture
             preload="metadata"
-            poster={heroImg}
-            key={videoSrc}
+            onLoadedData={() => {
+              videoRef.current?.classList.add("is-ready");
+            }}
           >
-            <source src={videoSrc} type="video/mp4" />
+            <source
+              src={smallHeroVideo}
+              type="video/mp4"
+              media="(max-width: 992px)"
+            />
+            <source
+              src={heroVideo}
+              type="video/mp4"
+              media="(min-width: 993px)"
+            />
           </video>
         </div>
       </div>
