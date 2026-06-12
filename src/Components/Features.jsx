@@ -1,11 +1,32 @@
 import { useGSAP } from "@gsap/react";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { animateWithGsap } from "../Utils/animations";
 import { explore1Img, explore2Img, exploreVideo } from "../Utils";
 import gsap from "gsap";
 
 const Features = () => {
   const videoRef = useRef();
+  const videoContainerRef = useRef(null);
+  const [loadVideo, setLoadVideo] = useState(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setLoadVideo(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "200px" },
+    );
+
+    if (videoContainerRef.current) observer.observe(videoContainerRef.current);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (loadVideo) videoRef.current?.load();
+  }, [loadVideo]);
 
   useGSAP(() => {
     gsap.to("#exploreVideo", {
@@ -45,23 +66,23 @@ const Features = () => {
         <div className="flex flex-col justify-center items-center overflow-hidden">
           <div className="story-title">
             <h2>iPhone.</h2>
-            <h2>
-              Forged in titanium.
-            </h2>
+            <h2>Forged in titanium.</h2>
           </div>
 
           <div className="flex-center flex-col w-full">
-            <div className="story-video">
+            <div className="story-video" ref={videoContainerRef}>
               <video
                 playsInline
                 id="exploreVideo"
                 className="w-full h-full object-cover object-center"
-                preload="none"
+                preload={loadVideo ? "metadata" : "none"}
                 muted
                 autoPlay
+                loop
+                poster={explore1Img}
                 ref={videoRef}
               >
-                <source src={exploreVideo} type="video/mp4" />
+                {loadVideo && <source src={exploreVideo} type="video/mp4" />}
               </video>
             </div>
 
@@ -71,6 +92,7 @@ const Features = () => {
                   <img
                     src={explore1Img}
                     alt="titanium"
+                    loading="lazy"
                     className="feature-video g_grow"
                   />
                 </div>
@@ -78,6 +100,7 @@ const Features = () => {
                   <img
                     src={explore2Img}
                     alt="titanium 2"
+                    loading="lazy"
                     className="feature-video g_grow"
                   />
                 </div>

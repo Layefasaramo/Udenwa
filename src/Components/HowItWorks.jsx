@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { chipImg, frameImg, frameVideo } from "../Utils";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
@@ -6,6 +6,27 @@ import { animateWithGsap } from "../Utils/animations";
 
 const HowItWorks = () => {
   const videoRef = useRef();
+  const sectionRef = useRef(null);
+  const [loadVideo, setLoadVideo] = useState(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setLoadVideo(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "200px" },
+    );
+
+    if (sectionRef.current) observer.observe(sectionRef.current);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (loadVideo) videoRef.current?.load();
+  }, [loadVideo]);
 
   useGSAP(() => {
     gsap.from("#chip", {
@@ -51,19 +72,22 @@ const HowItWorks = () => {
               <img
                 src={frameImg}
                 alt="frame"
+                loading="lazy"
                 className="bg-transparent relative z-10"
               />
             </div>
-            <div className="hiw-video">
+            <div className="hiw-video" ref={sectionRef}>
               <video
                 className="pointer-events-none"
                 playsInline
-                preload="none"
+                preload={loadVideo ? "metadata" : "none"}
                 muted
                 autoPlay
+                loop
+                poster={frameImg}
                 ref={videoRef}
               >
-                <source src={frameVideo} type="video/mp4" />
+                {loadVideo && <source src={frameVideo} type="video/mp4" />}
               </video>
             </div>
           </div>
