@@ -86,8 +86,7 @@ const HowItWorks = () => {
               <video
                 className="pointer-events-none"
                 playsInline
-                disablePictureInPicture
-                preload={loadVideo ? "metadata" : "none"}
+                preload="none"
                 muted
                 autoPlay
                 loop
