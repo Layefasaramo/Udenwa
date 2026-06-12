@@ -2,11 +2,9 @@ import Navbar from "./Components/Navbar";
 import Hero from "./Components/Hero";
 import Highlights from "./Components/Highlights";
 import Features from "./Components/Features";
-import Model from "./Components/Model";
+import DeferredModel from "./Components/DeferredModel";
 import Footer from "./Components/Footer";
 import HowItWorks from "./Components/HowItWorks";
-
-import "./App.css";
 
 function App() {
   return (
@@ -14,7 +12,7 @@ function App() {
       <Navbar />
       <Hero />
       <Highlights />
-      <Model />
+      <DeferredModel />
       <Features />
       <HowItWorks />
       <Footer />

@@ -11,6 +11,7 @@ import { models, sizes } from "../Constant";
 import { animateWithGsapTimeline } from "../Utils/animations";
 
 const Model = () => {
+  const dragState = useRef({ pointerId: null, x: 0 });
   const [size, setSize] = useState("small");
   const [model, setModel] = useState({
     title: "iPhone 15 Pro in Natural Titanium",
@@ -27,30 +28,78 @@ const Model = () => {
   const large = useRef(new THREE.Group());
 
   // rotation
-  const [smallRotation, setSmallRotation] = useState(0);
-  const [largeRotation, setLargeRotation] = useState(0);
+  const smallRotation = useRef(0);
+  const largeRotation = useRef(0);
 
-  const tl = gsap.timeline();
+  const tlRef = useRef(gsap.timeline());
 
   useEffect(() => {
+    const timeline = tlRef.current;
+
     if (size === "large") {
-      animateWithGsapTimeline(tl, small, smallRotation, "#view1", "#view2", {
-        transform: "translateX(-100%)",
-        duration: 2,
-      });
+      animateWithGsapTimeline(
+        timeline,
+        small,
+        smallRotation.current,
+        "#view1",
+        "#view2",
+        {
+          transform: "translateX(-100%)",
+          duration: 2,
+        },
+      );
     }
 
     if (size === "small") {
-      animateWithGsapTimeline(tl, large, largeRotation, "#view2", "#view1", {
-        transform: "translateX(0)",
-        duration: 2,
-      });
+      animateWithGsapTimeline(
+        timeline,
+        large,
+        largeRotation.current,
+        "#view2",
+        "#view1",
+        {
+          transform: "translateX(0)",
+          duration: 2,
+        },
+      );
     }
   }, [size]);
 
   useGSAP(() => {
     gsap.to("#heading", { y: 0, opacity: 1 });
   }, []);
+
+  const getActiveControl = () =>
+    size === "small" ? cameraControlSmall.current : cameraControlLarge.current;
+
+  const handlePointerDown = (event) => {
+    dragState.current = { pointerId: event.pointerId, x: event.clientX };
+    event.currentTarget.setPointerCapture(event.pointerId);
+  };
+
+  const handlePointerMove = (event) => {
+    if (dragState.current.pointerId !== event.pointerId) return;
+
+    const control = getActiveControl();
+    const deltaX = event.clientX - dragState.current.x;
+    dragState.current.x = event.clientX;
+
+    if (!control || deltaX === 0) return;
+
+    control.setAzimuthalAngle(control.getAzimuthalAngle() - deltaX * 0.01);
+    control.update();
+  };
+
+  const handlePointerEnd = (event) => {
+    if (dragState.current.pointerId !== event.pointerId) return;
+
+    const control = getActiveControl();
+    const rotationRef = size === "small" ? smallRotation : largeRotation;
+    if (control) rotationRef.current = control.getAzimuthalAngle();
+
+    dragState.current.pointerId = null;
+    event.currentTarget.releasePointerCapture(event.pointerId);
+  };
 
   return (
     <section className="standard-section content-section bg-black">
@@ -61,12 +110,22 @@ const Model = () => {
 
         <div className="flex flex-col items-center">
           <div className="model-stage">
+            <div
+              className="model-drag-zone"
+              aria-label="Drag horizontally to rotate the iPhone"
+              onPointerDown={handlePointerDown}
+              onPointerMove={handlePointerMove}
+              onPointerUp={handlePointerEnd}
+              onPointerCancel={handlePointerEnd}
+            />
             <ModelView
               index={1}
               groupRef={small}
               gsapType="view1"
               controlRef={cameraControlSmall}
-              setRotationState={setSmallRotation}
+              setRotationState={(angle) => {
+                smallRotation.current = angle;
+              }}
               item={model}
               size={size}
             />
@@ -76,22 +135,20 @@ const Model = () => {
               groupRef={large}
               gsapType="view2"
               controlRef={cameraControlLarge}
-              setRotationState={setLargeRotation}
+              setRotationState={(angle) => {
+                largeRotation.current = angle;
+              }}
               item={model}
               size={size}
             />
 
             <Canvas
-              className="w-full h-full"
+              className="w-full h-full absolute inset-0"
+              dpr={[1, 1.5]}
+              frameloop="demand"
               style={{
-                position: "fixed",
-                top: 0,
-                bottom: 0,
-                left: 0,
-                right: 0,
                 overflow: "hidden",
               }}
-              eventSource={document.getElementById("root")}
             >
               <View.Port />
             </Canvas>

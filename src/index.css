@@ -66,7 +66,11 @@ body {
 }
 
 canvas {
-  touch-action: none;
+  touch-action: pan-y;
+}
+
+.video-carousel_container video::-webkit-media-controls-start-playback-button {
+  display: none;
 }
 
 .screen-max-width {
@@ -146,6 +150,15 @@ canvas {
   width: 100%;
 }
 
+.hero-video {
+  opacity: 0;
+  transition: opacity 180ms ease;
+}
+
+.hero-video.is-ready {
+  opacity: 1;
+}
+
 .hero-price {
   color: #f5f5f7;
   font-size: clamp(1rem, 1.5vw, 1.25rem);
@@ -157,6 +170,28 @@ canvas {
   height: clamp(560px, 72vh, 820px);
   overflow: hidden;
   position: relative;
+}
+
+.model-drag-zone {
+  position: absolute;
+  z-index: 10;
+  top: 12%;
+  left: 50%;
+  width: clamp(220px, 34vw, 460px);
+  height: 72%;
+  transform: translateX(-50%);
+  touch-action: none;
+  cursor: grab;
+}
+
+.model-drag-zone:active {
+  cursor: grabbing;
+}
+
+.model-section-placeholder {
+  min-height: clamp(800px, 100vh, 1100px);
+  background: #000;
+  border-top: 1px solid rgb(255 255 255 / 0.035);
 }
 
 .story-section {
