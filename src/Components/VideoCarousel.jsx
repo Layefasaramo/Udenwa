@@ -12,6 +12,7 @@ const VideoCarousel = () => {
   const videoRef = useRef([]);
   const videoSpanRef = useRef([]);
   const videoDivRef = useRef([]);
+  const carouselRef = useRef(null);
 
   const [video, setVideo] = useState({
     isEnd: false,
@@ -22,6 +23,7 @@ const VideoCarousel = () => {
   });
 
   const [loadedData, setLoadedData] = useState([]);
+  const [loadVideos, setLoadVideos] = useState(false);
   const { isEnd, isLastVideo, startPlay, videoId, isPlaying } = video;
 
   useGSAP(() => {
@@ -129,6 +131,27 @@ const VideoCarousel = () => {
     }
   }, [startPlay, videoId, isPlaying, loadedData]);
 
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setLoadVideos(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "300px" },
+    );
+
+    if (carouselRef.current) observer.observe(carouselRef.current);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (loadVideos) {
+      videoRef.current.forEach((videoEl) => videoEl?.load());
+    }
+  }, [loadVideos]);
+
   const handleProcess = (type, i) => {
     switch (type) {
       case "video-end":
@@ -157,7 +180,7 @@ const VideoCarousel = () => {
 
   return (
     <>
-      <div id="video-carousel" className="flex items-center">
+      <div id="video-carousel" ref={carouselRef} className="flex items-center">
         <div id="slider" className="carousel-track flex items-center">
           {hightlightsSlides.map((list, i) => (
             <div key={list.id} className="carousel-slide">
@@ -166,7 +189,13 @@ const VideoCarousel = () => {
                   <video
                     playsInline={true}
                     className="pointer-events-none w-full h-full object-cover"
-                    preload="auto"
+                    preload={
+                      loadVideos
+                        ? i === videoId
+                          ? "auto"
+                          : "metadata"
+                        : "none"
+                    }
                     muted
                     ref={(el) => (videoRef.current[i] = el)}
                     onEnded={() =>
@@ -179,7 +208,7 @@ const VideoCarousel = () => {
                     }
                     onLoadedMetadata={(e) => handleLoadedMetaData(i, e)}
                   >
-                    <source src={list.video} type="video/mp4" />
+                    {loadVideos && <source src={list.video} type="video/mp4" />}
                   </video>
                 </div>
 
